@@ -77,12 +77,13 @@ class Research(models.Model):
         (ONGOING, 'Ongoing'),
         (INACTIVE, 'Inactive'),
     ]
-    researcher = models.ManyToManyField(Researcher)
+    researcher = models.ManyToManyField(
+        Researcher, related_name='researchers')
     title = models.CharField(max_length=250)
     description = models.TextField()
     status = models.CharField(max_length=1, choices=STATUS_CHOICES)
     date_started = models.DateField()
-    date_ended = models.DateField()
+    date_ended = models.DateField(blank=True, null=True)
     duration = models.SmallIntegerField()
 
     def __str__(self) -> str:

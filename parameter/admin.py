@@ -24,22 +24,21 @@ class ResearcherAdmin(admin.ModelAdmin):
 
 @admin.register(models.Research)
 class ResearchAdmin(admin.ModelAdmin):
-    list_display = ('title',  'number_of_researchers', 'description', 'status',
+    list_display = ('title', 'description', 'author', 'status',
                     'date_started', 'date_ended', 'duration_in_months')
     list_per_page = 10
 
-    @admin.display(ordering='researchers_count')
-    def number_of_researchers(self, research):
-        return research.researchers_count
+    def author(self, research):
+        researchers = []
+        queryset = research.researcher.all()
+        for researcher in queryset:
+            researchers.append(
+                researcher.SALOG_employee.person.get_full_name())
+        return researchers
 
     @admin.display(ordering='duration')
     def duration_in_months(self, research):
         return research.duration
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).annotate(
-            researchers_count=Count('researcher')
-        )
 
 # *Research Details Entry and View is still under contraction
 
