@@ -130,3 +130,49 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'core.Account'
+
+JAZZMIN_SETTINGS = {
+    "show_ui_builder": True,
+    "copyright": "Integrated Research Laboratory",
+    "welcome_sign": "Welcome to the IRL",
+    "site_title": "IRL",
+    "site_header": "IRL",
+    "site_brand": "IRL",
+    # "site_logo": "", # need pa naton IRL logo
+    # "site_icon": "", # preferably 32x32px version san IRL logo
+    "search_model": ["parameter.Person", "parameter.Research"],
+    # Links to put along the top menu
+    "topmenu_links": [
+        # Url that gets reversed (Permissions can be added)
+        {"name": "Home",  "url": "admin:index",
+            "permissions": ["auth.view_user"]},
+    ],
+    # Whether to aut expand the menu
+    "navigation_expanded": False,
+    # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
+    "order_with_respect_to": ["parameter.Person", "parameter.SALOG_Employee", "parameter.Researcher", "parameter.Research", "parameter.Project", "parameter.Activity", "parameter.News"],
+    # Custom icons for side menu apps/models See https://fontawesome.com/icons?d=gallery&m=free&v=5.0.0,5.0.1,5.0.10,5.0.11,5.0.12,5.0.13,5.0.2,5.0.3,5.0.4,5.0.5,5.0.6,5.0.7,5.0.8,5.0.9,5.1.0,5.1.1,5.2.0,5.3.0,5.3.1,5.4.0,5.4.1,5.4.2,5.13.0,5.12.0,5.11.2,5.11.1,5.10.0,5.9.0,5.8.2,5.8.1,5.7.2,5.7.1,5.7.0,5.6.3,5.5.0,5.4.2
+    # for the full list of 5.13.0 free icon classes
+    "icons": {
+        "admin.LogEntry": "fas fa-align-left",
+        "core.Account": "fas fa-user",
+        "core.Group": "fas fa-users",
+        "parameter.Person": "fas fa-male",
+        "parameter.SALOG_Employee": "fas fa-user-tie",
+        "parameter.Researcher": "fas fa-binoculars",
+        "parameter.Research": "fas fa-microscope",
+        "parameter.Project": "fas fa-folder-open",
+        "parameter.Activity": "fas fa-tasks",
+        "parameter.News": "fas fa-newspaper",
+    },
+    # Render out the change view as a single form, or in tabs, current options are
+    # - single
+    # - horizontal_tabs (default)
+    # - vertical_tabs
+    # - collapsible
+    # - carousel
+    "changeform_format": "carousel",
+}
+
+JAZZMIN_UI_TWEAKS = {
+}

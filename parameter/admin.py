@@ -41,6 +41,8 @@ class ResearchAdmin(admin.ModelAdmin):
             researchers_count=Count('researcher')
         )
 
+# *Research Details Entry and View is still under contraction
+
 
 @admin.register(models.Project)
 class ProjectAdmin(admin.ModelAdmin):
@@ -51,3 +53,24 @@ class ProjectAdmin(admin.ModelAdmin):
     @admin.display(ordering='duration')
     def duration_in_months(self, project):
         return project.duration
+
+# SUBMITTED FILES TABLE
+# *Setup Submitted Files and View User Interphase is still under construction
+
+
+@admin.register(models.Activity)
+class ActivityAdmin(admin.ModelAdmin):
+    list_display = ('project', 'research', 'name', 'description',
+                    'activity_type', 'date_started', 'date_ended', 'duration_in_months')
+    list_per_page = 10
+
+    @admin.display(ordering='duration')
+    def duration_in_months(self, activity):
+        return activity.duration
+
+
+@admin.register(models.News)
+class NewsAdmin(admin.ModelAdmin):
+    list_display = ('project', 'research', 'name', 'details',
+                    'category', 'date_posted', 'date_expired', 'status')
+    list_per_page = 10
