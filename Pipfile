@@ -9,6 +9,8 @@ pillow = "*"
 mysqlclient = "*"
 djangorestframework = "*"
 django-jazzmin = "*"
+django-debug-toolbar = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 autopep8 = "*"

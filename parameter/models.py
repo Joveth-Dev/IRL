@@ -28,6 +28,14 @@ class Person(models.Model):
 
 
 class SALOG_Employee(models.Model):
+    PROGRAM_LEADER = 'Prog. L'
+    PROJECT_LEADER = 'Proj. L'
+    PROJECT_STAFF = 'Proj. S'
+    DESIGNATION_CHOICES = [
+        (PROGRAM_LEADER, 'Program Leader'),
+        (PROJECT_LEADER, 'Project Leader'),
+        (PROJECT_STAFF, 'Project Staff'),
+    ]
     ACTIVE = 'A'
     INACTIVE = 'I'
     STATUS_CHOICES = [
@@ -35,7 +43,7 @@ class SALOG_Employee(models.Model):
         (INACTIVE, 'Inactive'),
     ]
     person = models.OneToOneField(Person, on_delete=models.CASCADE)
-    designation = models.CharField(max_length=50)
+    designation = models.CharField(max_length=7, choices=DESIGNATION_CHOICES)
     rank = models.CharField(max_length=50)
     date_started = models.DateField()
     status = models.CharField(max_length=1, choices=STATUS_CHOICES)
@@ -104,7 +112,7 @@ class Project(models.Model):
     description = models.TextField()
     status = models.CharField(max_length=1, choices=STATUS_CHOICES)
     date_started = models.DateField()
-    date_ended = models.DateField()
+    date_ended = models.DateField(blank=True, null=True)
     duration = models.SmallIntegerField()
 
     def __str__(self) -> str:
