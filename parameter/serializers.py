@@ -32,9 +32,9 @@ class SALOG_EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.SALOG_Employee
         fields = ['id', 'designation', 'rank',
-                  'date_started', 'status']  # , 'person'
+                  'date_started', 'status', 'person']  #
 
-    # person = PersonSerializer()
+    person = PersonSerializer()
 # =======================================================================================
 
 
@@ -42,9 +42,9 @@ class ResearcherSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Researcher
         fields = ['id', 'researcher_level',
-                  'researcher_status']  # , 'SALOG_employee'
+                  'researcher_status', 'SALOG_employee']  #
 
-    # SALOG_employee = SALOG_EmployeeSerializer()
+    SALOG_employee = SALOG_EmployeeSerializer()
     researcher_level = serializers.SerializerMethodField()
     researcher_status = serializers.SerializerMethodField()
 
