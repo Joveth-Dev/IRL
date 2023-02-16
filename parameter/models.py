@@ -43,7 +43,8 @@ class SALOG_Employee(models.Model):
         (INACTIVE, 'Inactive'),
     ]
     person = models.OneToOneField(Person, on_delete=models.CASCADE)
-    designation = models.CharField(max_length=7, choices=DESIGNATION_CHOICES)
+    designation = models.CharField(
+        max_length=7, choices=DESIGNATION_CHOICES, blank=True, null=True)
     rank = models.CharField(max_length=50)
     date_started = models.DateField()
     status = models.CharField(max_length=1, choices=STATUS_CHOICES)
@@ -85,8 +86,6 @@ class Research(models.Model):
         (ONGOING, 'Ongoing'),
         (INACTIVE, 'Inactive'),
     ]
-    researcher = models.ManyToManyField(
-        Researcher, related_name='researchers')
     title = models.CharField(max_length=250)
     description = models.TextField()
     status = models.CharField(max_length=1, choices=STATUS_CHOICES)
@@ -101,6 +100,15 @@ class Research(models.Model):
         verbose_name_plural = 'Researches'
 
 
+class ResearchResearcher(models.Model):
+    researcher = models.ForeignKey(Researcher, on_delete=models.CASCADE)
+    research = models.ForeignKey(
+        Research, on_delete=models.CASCADE, related_name='research_researcher')
+
+    def __str__(self) -> str:
+        return self.researcher.SALOG_employee.person.get_full_name()
+
+
 class Project(models.Model):
     ONGOING = 'O'
     INACTIVE = 'I'
@@ -109,7 +117,7 @@ class Project(models.Model):
         (INACTIVE, 'Inactive'),
     ]
     title = models.CharField(max_length=250)
-    description = models.TextField()
+    project_description = models.TextField()
     status = models.CharField(max_length=1, choices=STATUS_CHOICES)
     date_started = models.DateField()
     date_ended = models.DateField(blank=True, null=True)
@@ -117,6 +125,15 @@ class Project(models.Model):
 
     def __str__(self) -> str:
         return self.title
+
+
+class ProjectEmployee(models.Model):
+    employee = models.ForeignKey(SALOG_Employee, on_delete=models.CASCADE)
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, related_name='project_employee')
+
+    def __str__(self):
+        return self.employee.person.get_full_name()
 
 
 class Activity(models.Model):

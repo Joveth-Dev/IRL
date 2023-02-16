@@ -5,21 +5,22 @@ from . import models
 class ResearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Research
-        fields = ['id', 'title', 'description', 'author', 'status',
+        fields = ['id', 'title', 'researcher_id', 'description', 'status',
                   'date_started', 'date_ended', 'duration']
 
-    author = serializers.SerializerMethodField()
+    researcher_id = serializers.SerializerMethodField()
 
-    def get_author(self, research: models.Research):
+    def get_researcher_id(self, research: models.Research):
         researchers = []
-        queryset = research.researcher.all()
-        for researcher in queryset:
+        queryset = research.research_researcher.all()
+        for research in queryset:
             researchers.append(
-                researcher.SALOG_employee.person.get_full_name())
+                research.researcher.id)
+            # researcher.researcher.SALOG_employee.person.get_full_name())
         return researchers
 
 
-# ============= This classes will be displayed in the researchers/ endpoint =============
+# ============= This classes can/will be displayed in the researchers/ endpoint =============
 class PersonSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Person
@@ -30,20 +31,20 @@ class PersonSerializer(serializers.ModelSerializer):
 class SALOG_EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.SALOG_Employee
-        fields = ['id', 'person', 'designation',
-                  'rank', 'date_started', 'status']
+        fields = ['id', 'designation', 'rank',
+                  'date_started', 'status']  # , 'person'
 
-    person = PersonSerializer()
+    # person = PersonSerializer()
 # =======================================================================================
 
 
 class ResearcherSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Researcher
-        fields = ['id', 'SALOG_employee',
-                  'researcher_level', 'researcher_status']
+        fields = ['id', 'researcher_level',
+                  'researcher_status']  # , 'SALOG_employee'
 
-    SALOG_employee = SALOG_EmployeeSerializer()
+    # SALOG_employee = SALOG_EmployeeSerializer()
     researcher_level = serializers.SerializerMethodField()
     researcher_status = serializers.SerializerMethodField()
 
@@ -60,8 +61,25 @@ class ResearcherSerializer(serializers.ModelSerializer):
         return 'Inactive'
 
 
+class ProjectEmployeeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.SALOG_Employee
+        fields = ['id', 'designation', 'rank', 'date_started', 'status']
+
+
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Project
-        fields = ['id', 'title', 'description', 'status',
-                  'date_started', 'date_ended', 'duration']
+        fields = ['id', 'title', 'SALOG_Employee', 'project_description',
+                  'status', 'date_started', 'date_ended', 'duration']
+
+    SALOG_Employee = serializers.SerializerMethodField()
+
+    def get_SALOG_Employee(self, project: models.Project):
+        employees = []
+        queryset = project.project_employee.all()
+        for project in queryset:
+            employees.append(
+                project.employee.id)
+            # project.employee.person.get_full_name())
+        return employees
