@@ -7,6 +7,8 @@ class Account(AbstractUser):
     email = models.EmailField(_("email address"), blank=True, unique=True)
 
     def __str__(self) -> str:
+        if self.first_name == '':
+            return f'ID : {self.id}'
         return self.get_full_name()
 
     class Meta:

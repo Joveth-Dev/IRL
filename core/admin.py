@@ -45,7 +45,7 @@ class AccountAdmin(BaseUserAdmin):
             {
                 "fields": (
                     "is_active",
-                    "is_staff",
+                    # "is_staff",
                     # "is_superuser",
                     "groups",
                     # "user_permissions",
@@ -55,6 +55,11 @@ class AccountAdmin(BaseUserAdmin):
         (_("Important dates"), {"fields": ("last_login", "date_joined")}),
     )
 
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.is_staff = True
+        return super().save_model(request, obj, form, change)
+
     def has_delete_permission(self, request, obj=None):
         return False
 
@@ -62,3 +67,6 @@ class AccountAdmin(BaseUserAdmin):
 @admin.register(models.Group)
 class GroupAdmin(BaseGroupAdmin):
     list_per_page = 10
+
+    def has_view_permission(self, request, obj=None):
+        return request.user.is_superuser

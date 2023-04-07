@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'core',
     'parameter',
+    'news_and_activity',
 ]
 
 MIDDLEWARE = [
@@ -130,7 +131,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-MEDIA_URL = '/media/'
+MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
@@ -176,20 +177,34 @@ JAZZMIN_SETTINGS = {
     # Whether to aut expand the menu
     "navigation_expanded": False,
     # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
-    "order_with_respect_to": ["parameter.Person", "parameter.SALOG_Employee", "parameter.Researcher", "parameter.Research", "parameter.Project", "parameter.Activity", "parameter.News"],
-    # Custom icons for side menu apps/models See https://fontawesome.com/icons?d=gallery&m=free&v=5.0.0,5.0.1,5.0.10,5.0.11,5.0.12,5.0.13,5.0.2,5.0.3,5.0.4,5.0.5,5.0.6,5.0.7,5.0.8,5.0.9,5.1.0,5.1.1,5.2.0,5.3.0,5.3.1,5.4.0,5.4.1,5.4.2,5.13.0,5.12.0,5.11.2,5.11.1,5.10.0,5.9.0,5.8.2,5.8.1,5.7.2,5.7.1,5.7.0,5.6.3,5.5.0,5.4.2
+    "order_with_respect_to": [
+        "parameter",
+        "parameter.Person",
+        "parameter.Coordinator",
+        "parameter.Program",
+        "parameter.SALOG_Employee",
+        "parameter.Project",
+        "parameter.Researcher",
+        "parameter.Research",
+        "news_and_activity",
+        "news_and_activity.Activity",
+        "core",
+    ],
+    # Custom icons for side menu apps/models See https://fontawesome.com/v5/search?m=free
     # for the full list of 5.13.0 free icon classes
     "icons": {
         "admin.LogEntry": "fas fa-align-left",
         "core.Account": "fas fa-user",
         "core.Group": "fas fa-users",
         "parameter.Person": "fas fa-male",
+        "parameter.Coordinator": "fas fa-handshake",
+        "parameter.Program": "fas fa-folder",
         "parameter.SALOG_Employee": "fas fa-user-tie",
+        "parameter.Project": "fas fa-folder-open",
         "parameter.Researcher": "fas fa-binoculars",
         "parameter.Research": "fas fa-microscope",
-        "parameter.Project": "fas fa-folder-open",
-        "parameter.Activity": "fas fa-tasks",
-        "parameter.News": "fas fa-newspaper",
+        "news_and_activity.Activity": "fas fa-tasks",
+        "news_and_activity.News": "fas fa-newspaper",
     },
     # Render out the change view as a single form, or in tabs, current options are
     # - single
@@ -206,25 +221,25 @@ JAZZMIN_UI_TWEAKS = {
     "body_small_text": False,
     "brand_small_text": False,
     "brand_colour": "navbar-info",
-    "accent": "accent-teal",
-    "navbar": "navbar-cyan navbar-dark",
+    "accent": "accent-info",
+    "navbar": "navbar-info navbar-dark",
     "no_navbar_border": False,
     "navbar_fixed": True,
     "layout_boxed": False,
     "footer_fixed": False,
     "sidebar_fixed": True,
-    "sidebar": "sidebar-dark-info",
-    "sidebar_nav_small_text": False,
+    "sidebar": "sidebar-light-info",
+    "sidebar_nav_small_text": True,
     "sidebar_disable_expand": False,
     "sidebar_nav_child_indent": True,
     "sidebar_nav_compact_style": False,
     "sidebar_nav_legacy_style": False,
     "sidebar_nav_flat_style": False,
-    "theme": "superhero",
+    "theme": "simplex",
     "dark_mode_theme": None,
     "button_classes": {
-        "primary": "btn-primary",
-        "secondary": "btn-secondary",
+        "primary": "btn-outline-primary",
+        "secondary": "btn-outline-secondary",
         "info": "btn-info",
         "warning": "btn-warning",
         "danger": "btn-danger",
@@ -232,5 +247,4 @@ JAZZMIN_UI_TWEAKS = {
     },
     "actions_sticky_top": False
 }
-
 # ==========================================================================

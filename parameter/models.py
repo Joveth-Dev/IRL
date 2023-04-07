@@ -27,6 +27,31 @@ class Person(models.Model):
         verbose_name_plural = 'Person'
 
 
+class Coordinator(models.Model):
+    MALE = 'M'
+    FEMALE = 'F'
+    SEX_CHOICES = [
+        (MALE, 'Male'),
+        (FEMALE, 'Female'),
+    ]
+    name = models.CharField(max_length=255)
+    sex = models.CharField(max_length=1, choices=SEX_CHOICES)
+    agency_or_address = models.CharField(max_length=500)
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class Program(models.Model):
+    coordinator = models.ForeignKey(
+        Coordinator, on_delete=models.CASCADE, related_name='programs')
+    title = models.CharField(max_length=255)
+    executive_summary = models.TextField()
+
+    def __str__(self) -> str:
+        return self.title
+
+
 class SALOG_Employee(models.Model):
     PROGRAM_LEADER = 'Prog. L'
     PROJECT_LEADER = 'Proj. L'
@@ -46,7 +71,7 @@ class SALOG_Employee(models.Model):
     designation = models.CharField(
         max_length=7, choices=DESIGNATION_CHOICES, blank=True, null=True)
     rank = models.CharField(max_length=50)
-    date_started = models.DateField()
+    date_started = models.DateField(auto_now_add=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES)
 
     def __str__(self) -> str:
@@ -55,6 +80,32 @@ class SALOG_Employee(models.Model):
     class Meta:
         verbose_name = 'SALOG Employee'
         verbose_name_plural = 'SALOG Employees'
+
+
+class Project(models.Model):
+    ONGOING = 'O'
+    INACTIVE = 'I'
+    STATUS_CHOICES = [
+        (ONGOING, 'Ongoing'),
+        (INACTIVE, 'Inactive'),
+    ]
+    program = models.ForeignKey(
+        Program,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
+    SALOG_employees = models.ManyToManyField(
+        SALOG_Employee, related_name='projects')
+    title = models.CharField(max_length=250)
+    project_description = models.TextField()
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES)
+    date_started = models.DateField()
+    date_ended = models.DateField(blank=True, null=True)
+    duration = models.SmallIntegerField()
+
+    def __str__(self) -> str:
+        return self.title
 
 
 class Researcher(models.Model):
@@ -86,6 +137,13 @@ class Research(models.Model):
         (ONGOING, 'Ongoing'),
         (INACTIVE, 'Inactive'),
     ]
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
+    researchers = models.ManyToManyField(Researcher, related_name='researches')
     title = models.CharField(max_length=250)
     description = models.TextField()
     status = models.CharField(max_length=1, choices=STATUS_CHOICES)
@@ -98,104 +156,3 @@ class Research(models.Model):
 
     class Meta:
         verbose_name_plural = 'Researches'
-
-
-class ResearchResearcher(models.Model):
-    researcher = models.ForeignKey(Researcher, on_delete=models.CASCADE)
-    research = models.ForeignKey(
-        Research, on_delete=models.CASCADE, related_name='research_researcher')
-
-    def __str__(self) -> str:
-        return self.researcher.SALOG_employee.person.get_full_name()
-
-
-class Project(models.Model):
-    ONGOING = 'O'
-    INACTIVE = 'I'
-    STATUS_CHOICES = [
-        (ONGOING, 'Ongoing'),
-        (INACTIVE, 'Inactive'),
-    ]
-    title = models.CharField(max_length=250)
-    project_description = models.TextField()
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES)
-    date_started = models.DateField()
-    date_ended = models.DateField(blank=True, null=True)
-    duration = models.SmallIntegerField()
-
-    def __str__(self) -> str:
-        return self.title
-
-
-class ProjectEmployee(models.Model):
-    employee = models.ForeignKey(SALOG_Employee, on_delete=models.CASCADE)
-    project = models.ForeignKey(
-        Project, on_delete=models.CASCADE, related_name='project_employee')
-
-    def __str__(self):
-        return self.employee.person.get_full_name()
-
-
-class Activity(models.Model):
-    CONFERENCE = 'C'
-    LECTURE = 'L'
-    TRAINING = 'T'
-    FORUM = 'F'
-    MEETING = 'M'
-    ACTIVITY_TYPE_CHOICES = [
-        (CONFERENCE, 'Conference'),
-        (LECTURE, 'Lecture'),
-        (TRAINING, 'Training'),
-        (FORUM, 'Forum'),
-        (MEETING, 'Meeting'),
-    ]
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    research = models.ForeignKey(Research, on_delete=models.CASCADE)
-    name = models.TextField()
-    description = models.TextField()
-    activity_type = models.CharField(
-        max_length=1, choices=ACTIVITY_TYPE_CHOICES)
-    date_started = models.DateField()
-    date_ended = models.DateField()
-    duration = models.SmallIntegerField()
-    # batchfile_id (dire pa sure kun nano gud ine)
-
-    def __str__(self) -> str:
-        return self.name
-
-    class Meta:
-        verbose_name_plural = 'Activities'
-
-
-class News(models.Model):
-    LOCAL = 'L'
-    REGIONAL = 'R'
-    NATIONAL = 'N'
-    INTERNATIONAL = 'I'
-    CATEGORY_CHOICES = [
-        (LOCAL, 'Local'),
-        (REGIONAL, 'Regional'),
-        (NATIONAL, 'National'),
-        (INTERNATIONAL, 'International'),
-    ]
-    DISPLAY = 'D'
-    HIDDEN = 'H'
-    STAUS_CHOICES = [
-        (DISPLAY, 'Display'),
-        (HIDDEN, 'Hidden'),
-    ]
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    research = models.ForeignKey(Research, on_delete=models.CASCADE)
-    name = models.TextField()
-    details = models.TextField()
-    category = models.CharField(max_length=1, choices=CATEGORY_CHOICES)
-    date_posted = models.DateTimeField(auto_now_add=True)
-    date_expired = models.DateTimeField()
-    status = models.CharField(max_length=1, choices=STAUS_CHOICES)
-    # batchfile_id (dire pa sure kun nano gud ine)
-
-    def __str__(self) -> str:
-        return self.name
-
-    class Meta:
-        verbose_name_plural = 'News'
