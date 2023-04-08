@@ -108,6 +108,36 @@ class Project(models.Model):
         return self.title
 
 
+class LinkagePartner(models.Model):
+    ACTIVE = 'A'
+    INACTIVE = 'I'
+    STATUS_CHOICES = [
+        (ACTIVE, 'Active'),
+        (INACTIVE, 'Inactive'),
+    ]
+    name = models.CharField(max_length=250)
+    description = models.TextField()
+    logo = models.ImageField(upload_to='parameter/linkage_partners/image')
+    date_of_linkage = models.DateField(auto_now_add=True)
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES)
+
+    def __str__(self) -> str:
+        return self.name
+
+    class Meta:
+        verbose_name = 'Linkage Partner'
+        verbose_name_plural = 'Linkage Partners'
+
+
+class Equipment(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    image = models.ImageField(upload_to='parameter/equipment/image')
+
+    def __str__(self) -> str:
+        return self.name
+
+
 class Researcher(models.Model):
     PRIMARY_AUTHOR = 'P'
     SECONDARY_AUTHOR = 'S'
@@ -143,7 +173,10 @@ class Research(models.Model):
         blank=True,
         null=True,
     )
+    linkage_partners = models.ManyToManyField(
+        LinkagePartner, related_name='linkage_researches')
     researchers = models.ManyToManyField(Researcher, related_name='researches')
+    equipments = models.ManyToManyField(Equipment, 'equipment_researches')
     title = models.CharField(max_length=250)
     description = models.TextField()
     status = models.CharField(max_length=1, choices=STATUS_CHOICES)

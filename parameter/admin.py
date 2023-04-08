@@ -125,6 +125,21 @@ class ResearcherAdmin(admin.ModelAdmin):
                      'SALOG_employee__person__middle_name__icontains', 'SALOG_employee__person__last_name__icontains']
 
 
+class LinkagePartnerInline(admin.TabularInline):
+    extra = 0
+    min_num = 1
+    model = models.Research.linkage_partners.through
+    verbose_name = 'Linkage Partner'
+    verbose_name_plural = 'Linkage Partners'
+
+
+class EquipmentInline(admin.TabularInline):
+    extra = 0
+    model = models.Research.equipments.through
+    verbose_name = 'Equipment'
+    verbose_name_plural = 'Equipments'
+
+
 class ResearcherInline(admin.TabularInline):
     extra = 0
     min_num = 1
@@ -135,9 +150,10 @@ class ResearcherInline(admin.TabularInline):
 
 @admin.register(models.Research)
 class ResearchAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['project', 'equipments']
     fields = ['project', 'title', 'description', 'status',
               'date_started', 'date_ended', 'duration']
-    inlines = [ResearcherInline]
+    inlines = [ResearcherInline, EquipmentInline, LinkagePartnerInline]
     list_display = ('title', 'research_project', 'research_researchers', 'abstract', 'status',
                     'date_started', 'date_ended', 'duration_in_months')
     list_filter = ['project', 'status', 'date_started', 'date_ended']
@@ -150,8 +166,9 @@ class ResearchAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request). \
-            select_related('project'). \
-            prefetch_related('researchers__SALOG_employee__person')
+            select_related('project',). \
+            prefetch_related(
+                'researchers__SALOG_employee__person', 'equipments', 'linkage_partners')
         first_researcher = models.Research.objects. \
             filter(researchers=OuterRef('pk')). \
             values('researchers__SALOG_employee__person__first_name')[:1]
@@ -184,3 +201,61 @@ class ResearchAdmin(admin.ModelAdmin):
         return research.duration
 
 # *Research Details Entry and View is still under contraction
+
+    class Media:
+        css = {
+            'all': ['parameter/styles.css']
+        }
+
+
+@admin.register(models.LinkagePartner)
+class LinkagePartnerAdmin(admin.ModelAdmin):
+    fields = ['logo', 'name', 'description', 'status']
+    list_display = ['linkage_partner_logo', 'name', 'description', 'status']
+    list_filter = ['status']
+    list_per_page = 10
+    ordering = ['name']
+    readonly_fields = ['linkage_partner_logo']
+    search_fields = ['name__icontains', 'description__icontains']
+
+    def get_fields(self, request, obj=None):
+        fields = list(self.fields)
+        if obj:
+            fields.insert(0, 'linkage_partner_logo')
+        return fields
+
+    @admin.display(description='logo thumbnail')
+    def linkage_partner_logo(self, linkage_partners: models.LinkagePartner):
+        return format_html(f'<img src="{linkage_partners.logo.url}" class="linkage_partner_list">')
+
+    class Media:
+        css = {
+            'all': ['parameter/styles.css']
+        }
+
+
+@admin.register(models.Equipment)
+class EquipmentAdmin(admin.ModelAdmin):
+    fields = ['name', 'description', 'image']
+    list_display = ['name', 'description', 'image', 'image_thumbnail']
+    list_per_page = 10
+    ordering = ['name']
+    readonly_fields = ['thumbnail', 'image_thumbnail']
+    search_fields = ['name__icontains', 'description__icontains']
+
+    def get_fields(self, request, obj=None):
+        fields = list(self.fields)
+        if obj:
+            fields.append('thumbnail')
+        return fields
+
+    def thumbnail(self, equiment):
+        return format_html(f'<img src="{equiment.image.url}" class="equipment">')
+
+    def image_thumbnail(self, equiment):
+        return format_html(f'<img src="{equiment.image.url}" class="equipment_list">')
+
+    class Media:
+        css = {
+            'all': ['parameter/styles.css']
+        }
