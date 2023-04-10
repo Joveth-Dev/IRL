@@ -87,6 +87,26 @@ class SALOG_Employee(models.Model):
         verbose_name_plural = 'SALOG Employees'
 
 
+class Agency(models.Model):
+    FUNDING_AGENCY = 'F'
+    IMPLEMENTING_AGENCY = 'I'
+    TYPE_CHOICES = [
+        (FUNDING_AGENCY, 'Funding Agency'),
+        (IMPLEMENTING_AGENCY, 'Implementing Agency'),
+    ]
+    project = models.ForeignKey('Project', on_delete=models.CASCADE)
+    logo = models.ImageField(upload_to='parameter/agency/images')
+    name = models.CharField(max_length=255)
+    type = models.CharField(max_length=1, choices=TYPE_CHOICES)
+
+    def __str__(self) -> str:
+        return self.name
+
+    class Meta:
+        verbose_name = 'Agency'
+        verbose_name_plural = 'Agencies'
+
+
 class Project(models.Model):
     ONGOING = 'O'
     INACTIVE = 'I'
@@ -103,7 +123,11 @@ class Project(models.Model):
     SALOG_employees = models.ManyToManyField(
         SALOG_Employee, related_name='projects')
     title = models.CharField(max_length=250)
-    project_description = models.TextField()
+    project_summary = models.TextField()
+    sampling_site = models.TextField()
+    sampling_site_image = models.ImageField(
+        upload_to='parameter/project/images')
+    references = models.TextField()
     status = models.CharField(max_length=1, choices=STATUS_CHOICES)
     date_started = models.DateField()
     date_ended = models.DateField(blank=True, null=True)

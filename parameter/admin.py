@@ -107,6 +107,23 @@ class SALOG_EmployeeAdmin(admin.ModelAdmin):
         return False
 
 
+class AgencyInline(admin.StackedInline):
+    extra = 2
+    fields = ['logo_thumbnail', 'logo', 'type', 'name']
+    max_num = 2
+    min_num = 2
+    model = models.Agency
+    readonly_fields = ['logo_thumbnail']
+
+    def logo_thumbnail(self, agency: models.Agency):
+        return format_html(f'<img src="{agency.logo.url}" alt="logo.img" class="logo_thumbnail">')
+
+    class Media:
+        css = {
+            'all': ['parameter/styles.css']
+        }
+
+
 class SALOGEmployeeInline(admin.TabularInline):
     extra = 0
     min_num = 1
@@ -119,11 +136,11 @@ class SALOGEmployeeInline(admin.TabularInline):
 class ProjectAdmin(admin.ModelAdmin):
     actions = ['post', 'remove_post']
     autocomplete_fields = ['program']
-    fields = ['program', 'title', 'project_description', 'status',
-              'date_started', 'date_ended', 'duration', 'is_posted']
-    inlines = [SALOGEmployeeInline]
-    list_display = ['title', 'project_program', 'SALOG_Employees', 'description', 'status',
-                    'date_started', 'date_ended', 'duration_in_months', 'date_posted', 'is_posted']
+    fields = ['program', 'title', 'project_summary', 'sampling_site', 'sampling_site_image',
+              'references', 'status', 'date_started', 'date_ended', 'duration', 'is_posted']
+    inlines = [SALOGEmployeeInline, AgencyInline]
+    list_display = ['title', 'project_program', 'SALOG_Employees', 'project_summary_description',
+                    'status', 'date_started', 'date_ended', 'duration_in_months', 'date_posted', 'is_posted']
     list_filter = ['status', 'date_started', 'date_ended']
     list_per_page = 10
     ordering = ['-date_started']
@@ -170,11 +187,11 @@ class ProjectAdmin(admin.ModelAdmin):
     def SALOG_Employees(self, project: models.Project):
         return format_html('<br>'.join([str(employee) for employee in project.SALOG_employees.all()]))
 
-    @admin.display(ordering='description')
-    def description(self, project):
-        description = project.project_description
-        if description.__len__() > 100:
-            description = description[:100]
+    @admin.display(ordering='project_summary', description='project summary')
+    def project_summary_description(self, project):
+        description = project.project_summary
+        if description.__len__() > 50:
+            description = description[:50]
             return description.rstrip() + '...'
         return description
 
@@ -205,6 +222,11 @@ class ProjectAdmin(admin.ModelAdmin):
             f'{updated_count} projects were removed from posts!',
             "error"
         )
+
+    class Media:
+        css = {
+            'all': ['parameter/styles.css']
+        }
 
 # SUBMITTED FILES TABLE
 # *Setup Submitted Files and View User Interphase is still under construction
