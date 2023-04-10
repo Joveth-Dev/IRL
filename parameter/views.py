@@ -1,3 +1,4 @@
+from rest_framework.filters import SearchFilter
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from . import models, serializers
 
@@ -13,9 +14,11 @@ class CoordinatorViewSet(ReadOnlyModelViewSet):
 
 
 class ProgramViewSet(ReadOnlyModelViewSet):
+    filter_backends = [SearchFilter]
     queryset = models.Program.objects. \
         select_related('coordinator'). \
         filter(is_posted=True)
+    search_fields = ['title', 'executive_summary', 'coordinator__name']
     serializer_class = serializers.ProgramSerializer
 
 
@@ -27,9 +30,19 @@ class SALOG_EmployeeViewSet(ReadOnlyModelViewSet):
 
 
 class ProjectViewSet(ReadOnlyModelViewSet):
+    filter_backends = [SearchFilter]
     queryset = models.Project.objects. \
+        select_related('program'). \
         prefetch_related('SALOG_employees__person'). \
         filter(is_posted=True)
+    search_fields = [
+        'program__title',
+        'title',
+        'project_description',
+        'SALOG_employees__person__first_name',
+        'SALOG_employees__person__middle_name',
+        'SALOG_employees__person__last_name',
+    ]
     serializer_class = serializers.ProjectSerializer
 
 
@@ -51,8 +64,21 @@ class ResearcherViewSet(ReadOnlyModelViewSet):
 
 
 class ResearchViewSet(ReadOnlyModelViewSet):
+    filter_backends = [SearchFilter]
     queryset = models.Research.objects. \
         select_related('project'). \
         prefetch_related('linkage_partners', 'researchers__SALOG_employee__person', 'equipments'). \
         filter(is_posted=True)
+    search_fields = [
+        'project__title',
+        'title',
+        'description',
+        'researchers__SALOG_employee__person__first_name',
+        'researchers__SALOG_employee__person__middle_name',
+        'researchers__SALOG_employee__person__last_name',
+        'equipments__name',
+        'equipments__description',
+        'linkage_partners__name',
+        'linkage_partners__description',
+    ]
     serializer_class = serializers.ResearchSerializer
