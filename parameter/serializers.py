@@ -31,23 +31,33 @@ class CustomPersonSerializer(serializers.ModelSerializer):
                   'last_name', 'extension_name']
 
 
-class SALOG_EmployeeSerializer(serializers.ModelSerializer):
+class IRL_EmployeeSerializer(serializers.ModelSerializer):
     person = CustomPersonSerializer()
 
     class Meta:
-        model = models.SALOG_Employee
+        model = models.IRL_Employee
         fields = ['id', 'designation', 'rank',
                   'date_started', 'status', 'person']
 
 
+class AgencySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Agency
+        fields = ['id', 'type', 'name', 'logo']
+
+
 class ProjectSerializer(serializers.ModelSerializer):
     program = serializers.StringRelatedField()
-    SALOG_employees = SALOG_EmployeeSerializer(many=True)
+    IRL_employees = IRL_EmployeeSerializer(many=True)
+    agencies = AgencySerializer(
+        source='agency_set',
+        many=True,
+    )
 
     class Meta:
         model = models.Project
-        fields = ['id', 'program', 'title', 'project_description', 'status',
-                  'date_started', 'date_ended', 'duration', 'date_posted', 'SALOG_employees']
+        fields = ['id', 'program', 'title', 'project_summary', 'sampling_site', 'sampling_site_image',
+                  'references', 'status', 'date_started', 'date_ended', 'duration', 'date_posted', 'IRL_employees', 'agencies']
 
 
 class LinkagePartnerSerializer(serializers.ModelSerializer):
@@ -64,20 +74,20 @@ class EquipmentSerializer(serializers.ModelSerializer):
 
 
 class ResearcherSerializer(serializers.ModelSerializer):
-    SALOG_employee = SALOG_EmployeeSerializer()
+    IRL_employee = IRL_EmployeeSerializer()
 
     class Meta:
         model = models.Researcher
-        fields = ['id', 'level', 'status', 'SALOG_employee']
+        fields = ['id', 'level', 'status', 'IRL_employee']
 
 
 class ResearchSerializer(serializers.ModelSerializer):
     project = serializers.StringRelatedField()
     researchers = ResearcherSerializer(many=True)
-    equipments = EquipmentSerializer(many=True)
+    equipment = EquipmentSerializer(many=True)
     linkage_partners = LinkagePartnerSerializer(many=True)
 
     class Meta:
         model = models.Research
         fields = ['id', 'project', 'title', 'description', 'status', 'date_started', 'date_ended',
-                  'duration', 'date_posted', 'researchers', 'equipments', 'linkage_partners']
+                  'duration', 'date_posted', 'researchers', 'equipment', 'linkage_partners']

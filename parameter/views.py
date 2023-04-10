@@ -22,26 +22,26 @@ class ProgramViewSet(ReadOnlyModelViewSet):
     serializer_class = serializers.ProgramSerializer
 
 
-class SALOG_EmployeeViewSet(ReadOnlyModelViewSet):
-    queryset = models.SALOG_Employee.objects. \
+class IRL_EmployeeViewSet(ReadOnlyModelViewSet):
+    queryset = models.IRL_Employee.objects. \
         select_related('person'). \
         all()
-    serializer_class = serializers.SALOG_EmployeeSerializer
+    serializer_class = serializers.IRL_EmployeeSerializer
 
 
 class ProjectViewSet(ReadOnlyModelViewSet):
     filter_backends = [SearchFilter]
     queryset = models.Project.objects. \
         select_related('program'). \
-        prefetch_related('SALOG_employees__person'). \
+        prefetch_related('IRL_employees__person', 'agency_set'). \
         filter(is_posted=True)
     search_fields = [
         'program__title',
         'title',
         'project_description',
-        'SALOG_employees__person__first_name',
-        'SALOG_employees__person__middle_name',
-        'SALOG_employees__person__last_name',
+        'IRL_employees__person__first_name',
+        'IRL_employees__person__middle_name',
+        'IRL_employees__person__last_name',
     ]
     serializer_class = serializers.ProjectSerializer
 
@@ -58,7 +58,7 @@ class EquipmentViewSet(ReadOnlyModelViewSet):
 
 class ResearcherViewSet(ReadOnlyModelViewSet):
     queryset = models.Researcher.objects. \
-        select_related('SALOG_employee__person'). \
+        select_related('IRL_employee__person'). \
         all()
     serializer_class = serializers.ResearcherSerializer
 
@@ -67,17 +67,17 @@ class ResearchViewSet(ReadOnlyModelViewSet):
     filter_backends = [SearchFilter]
     queryset = models.Research.objects. \
         select_related('project'). \
-        prefetch_related('linkage_partners', 'researchers__SALOG_employee__person', 'equipments'). \
+        prefetch_related('linkage_partners', 'researchers__IRL_employee__person', 'equipment'). \
         filter(is_posted=True)
     search_fields = [
         'project__title',
         'title',
         'description',
-        'researchers__SALOG_employee__person__first_name',
-        'researchers__SALOG_employee__person__middle_name',
-        'researchers__SALOG_employee__person__last_name',
-        'equipments__name',
-        'equipments__description',
+        'researchers__IRL_employee__person__first_name',
+        'researchers__IRL_employee__person__middle_name',
+        'researchers__IRL_employee__person__last_name',
+        'equipment__name',
+        'equipment__description',
         'linkage_partners__name',
         'linkage_partners__description',
     ]

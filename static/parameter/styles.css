@@ -12,13 +12,7 @@
 }
 
 .linkage_partner_list {
-    width: 100;
-    height: 100;
-    border-radius: 50%;
-}
-
-.logo_thumbnail {
-    width: 250;
-    height: 250;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
 }

@@ -93,8 +93,8 @@ class ProgramAdmin(admin.ModelAdmin):
         )
 
 
-@admin.register(models.SALOG_Employee)
-class SALOG_EmployeeAdmin(admin.ModelAdmin):
+@admin.register(models.IRL_Employee)
+class IRL_EmployeeAdmin(admin.ModelAdmin):
     list_display = ('person', 'designation', 'rank', 'date_started', 'status')
     list_filter = ['status', 'rank', 'date_started', 'designation']
     list_per_page = 10
@@ -116,20 +116,15 @@ class AgencyInline(admin.StackedInline):
     readonly_fields = ['logo_thumbnail']
 
     def logo_thumbnail(self, agency: models.Agency):
-        return format_html(f'<img src="{agency.logo.url}" alt="logo.img" class="logo_thumbnail">')
-
-    class Media:
-        css = {
-            'all': ['parameter/styles.css']
-        }
+        return format_html(f'<img src="{agency.logo.url}" alt="logo.img" class="linkage_partner_list">')
 
 
-class SALOGEmployeeInline(admin.TabularInline):
+class IRLEmployeeInline(admin.TabularInline):
     extra = 0
     min_num = 1
-    model = models.Project.SALOG_employees.through
-    verbose_name = 'SALOG Employee'
-    verbose_name_plural = 'SALOG Employees'
+    model = models.Project.IRL_employees.through
+    verbose_name = 'IRL Employee'
+    verbose_name_plural = 'IRL Employees'
 
 
 @admin.register(models.Project)
@@ -138,8 +133,8 @@ class ProjectAdmin(admin.ModelAdmin):
     autocomplete_fields = ['program']
     fields = ['program', 'title', 'project_summary', 'sampling_site', 'sampling_site_image',
               'references', 'status', 'date_started', 'date_ended', 'duration', 'is_posted']
-    inlines = [SALOGEmployeeInline, AgencyInline]
-    list_display = ['title', 'project_program', 'SALOG_Employees', 'project_summary_description',
+    inlines = [IRLEmployeeInline, AgencyInline]
+    list_display = ['title', 'project_program', 'IRL_Employees', 'project_summary_description',
                     'status', 'date_started', 'date_ended', 'duration_in_months', 'date_posted', 'is_posted']
     list_filter = ['status', 'date_started', 'date_ended']
     list_per_page = 10
@@ -166,11 +161,11 @@ class ProjectAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         queryset = super().get_queryset(request). \
             select_related('program'). \
-            prefetch_related('SALOG_employees__person')
+            prefetch_related('IRL_employees__person')
         first_employee = models.Project.objects. \
-            filter(SALOG_employees=OuterRef('pk')). \
+            filter(IRL_employees=OuterRef('pk')). \
             order_by('-pk'). \
-            values('SALOG_employees__person__first_name')[:1]
+            values('IRL_employees__person__first_name')[:1]
         return queryset.annotate(first_employee=Subquery(first_employee))
 
     @admin.display(ordering='program', description='program')
@@ -184,8 +179,8 @@ class ProjectAdmin(admin.ModelAdmin):
         return 'None'
 
     @admin.display(ordering='-first_employee')
-    def SALOG_Employees(self, project: models.Project):
-        return format_html('<br>'.join([str(employee) for employee in project.SALOG_employees.all()]))
+    def IRL_Employees(self, project: models.Project):
+        return format_html('<br>'.join([str(employee) for employee in project.IRL_employees.all()]))
 
     @admin.display(ordering='project_summary', description='project summary')
     def project_summary_description(self, project):
@@ -234,12 +229,12 @@ class ProjectAdmin(admin.ModelAdmin):
 
 @admin.register(models.Researcher)
 class ResearcherAdmin(admin.ModelAdmin):
-    list_display = ['SALOG_employee', 'level', 'status']
+    list_display = ['IRL_employee', 'level', 'status']
     list_filter = ['status', 'level']
     list_per_page = 10
-    ordering = ['SALOG_employee']
-    search_fields = ['SALOG_employee__person__first_name__icontains',
-                     'SALOG_employee__person__middle_name__icontains', 'SALOG_employee__person__last_name__icontains']
+    ordering = ['IRL_employee']
+    search_fields = ['IRL_employee__person__first_name__icontains',
+                     'IRL_employee__person__middle_name__icontains', 'IRL_employee__person__last_name__icontains']
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -255,7 +250,7 @@ class LinkagePartnerInline(admin.TabularInline):
 
 class EquipmentInline(admin.TabularInline):
     extra = 0
-    model = models.Research.equipments.through
+    model = models.Research.equipment.through
     verbose_name = 'Equipment'
     verbose_name_plural = 'Equipments'
 
@@ -271,7 +266,7 @@ class ResearcherInline(admin.TabularInline):
 @admin.register(models.Research)
 class ResearchAdmin(admin.ModelAdmin):
     actions = ['post', 'remove_post']
-    autocomplete_fields = ['project', 'equipments']
+    autocomplete_fields = ['project', 'equipment']
     fields = ['project', 'title', 'description', 'status',
               'date_started', 'date_ended', 'duration', 'is_posted']
     inlines = [ResearcherInline, EquipmentInline, LinkagePartnerInline]
@@ -281,9 +276,9 @@ class ResearchAdmin(admin.ModelAdmin):
     list_per_page = 10
     ordering = ['-date_started']
     search_fields = ['title__icontains', 'project__title__icontains',
-                     'researchers__SALOG_employee__person__first_name__icontains',
-                     'researchers__SALOG_employee__person__middle_name__icontains',
-                     'researchers__SALOG_employee__person__last_name__icontains']
+                     'researchers__IRL_employee__person__first_name__icontains',
+                     'researchers__IRL_employee__person__middle_name__icontains',
+                     'researchers__IRL_employee__person__last_name__icontains']
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -305,10 +300,10 @@ class ResearchAdmin(admin.ModelAdmin):
         queryset = super().get_queryset(request). \
             select_related('project',). \
             prefetch_related(
-                'researchers__SALOG_employee__person', 'equipments', 'linkage_partners')
+                'researchers__IRL_employee__person', 'equipment', 'linkage_partners')
         first_researcher = models.Research.objects. \
             filter(researchers=OuterRef('pk')). \
-            values('researchers__SALOG_employee__person__first_name')[:1]
+            values('researchers__IRL_employee__person__first_name')[:1]
         return queryset.annotate(first_researcher=Subquery(first_researcher))
 
     @admin.display(ordering='program', description='program')

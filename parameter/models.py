@@ -57,7 +57,7 @@ class Program(models.Model):
         return self.title
 
 
-class SALOG_Employee(models.Model):
+class IRL_Employee(models.Model):
     PROGRAM_LEADER = 'Prog. L'
     PROJECT_LEADER = 'Proj. L'
     PROJECT_STAFF = 'Proj. S'
@@ -83,28 +83,8 @@ class SALOG_Employee(models.Model):
         return self.person.get_full_name()
 
     class Meta:
-        verbose_name = 'SALOG Employee'
-        verbose_name_plural = 'SALOG Employees'
-
-
-class Agency(models.Model):
-    FUNDING_AGENCY = 'F'
-    IMPLEMENTING_AGENCY = 'I'
-    TYPE_CHOICES = [
-        (FUNDING_AGENCY, 'Funding Agency'),
-        (IMPLEMENTING_AGENCY, 'Implementing Agency'),
-    ]
-    project = models.ForeignKey('Project', on_delete=models.CASCADE)
-    logo = models.ImageField(upload_to='parameter/agency/images')
-    name = models.CharField(max_length=255)
-    type = models.CharField(max_length=1, choices=TYPE_CHOICES)
-
-    def __str__(self) -> str:
-        return self.name
-
-    class Meta:
-        verbose_name = 'Agency'
-        verbose_name_plural = 'Agencies'
+        verbose_name = 'IRL Employee'
+        verbose_name_plural = 'IRL Employees'
 
 
 class Project(models.Model):
@@ -120,8 +100,8 @@ class Project(models.Model):
         blank=True,
         null=True,
     )
-    SALOG_employees = models.ManyToManyField(
-        SALOG_Employee, related_name='projects')
+    IRL_employees = models.ManyToManyField(
+        IRL_Employee, related_name='projects')
     title = models.CharField(max_length=250)
     project_summary = models.TextField()
     sampling_site = models.TextField()
@@ -140,6 +120,26 @@ class Project(models.Model):
 
     def __str__(self) -> str:
         return self.title
+
+
+class Agency(models.Model):
+    FUNDING_AGENCY = 'F'
+    IMPLEMENTING_AGENCY = 'I'
+    TYPE_CHOICES = [
+        (FUNDING_AGENCY, 'Funding Agency'),
+        (IMPLEMENTING_AGENCY, 'Implementing Agency'),
+    ]
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    logo = models.ImageField(upload_to='parameter/agency/images')
+    name = models.CharField(max_length=255)
+    type = models.CharField(max_length=1, choices=TYPE_CHOICES)
+
+    def __str__(self) -> str:
+        return self.name
+
+    class Meta:
+        verbose_name = 'Agency'
+        verbose_name_plural = 'Agencies'
 
 
 class LinkagePartner(models.Model):
@@ -171,6 +171,10 @@ class Equipment(models.Model):
     def __str__(self) -> str:
         return self.name
 
+    class Meta:
+        verbose_name = "Equipment"
+        verbose_name_plural = "Equipment"
+
 
 class Researcher(models.Model):
     PRIMARY_AUTHOR = 'P'
@@ -185,13 +189,13 @@ class Researcher(models.Model):
         (ACTIVE, 'Active'),
         (INACTIVE, 'Inactive'),
     ]
-    SALOG_employee = models.OneToOneField(
-        SALOG_Employee, on_delete=models.CASCADE)
+    IRL_employee = models.OneToOneField(
+        IRL_Employee, on_delete=models.CASCADE)
     level = models.CharField(max_length=1, choices=LEVEL_CHOICES)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES)
 
     def __str__(self) -> str:
-        return self.SALOG_employee.person.get_full_name()
+        return self.IRL_employee.person.get_full_name()
 
 
 class Research(models.Model):
@@ -210,7 +214,7 @@ class Research(models.Model):
     linkage_partners = models.ManyToManyField(
         LinkagePartner, related_name='linkage_researches')
     researchers = models.ManyToManyField(Researcher, related_name='researches')
-    equipments = models.ManyToManyField(Equipment, 'equipment_researches')
+    equipment = models.ManyToManyField(Equipment, 'equipment_researches')
     title = models.CharField(max_length=250)
     description = models.TextField()
     status = models.CharField(max_length=1, choices=STATUS_CHOICES)
