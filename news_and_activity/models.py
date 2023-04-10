@@ -24,6 +24,11 @@ class Activity(models.Model):
     date_started = models.DateField()
     date_ended = models.DateField()
     duration_in_hours = models.IntegerField()
+    is_posted = models.BooleanField(default=False)
+    date_posted = models.DateField(
+        blank=True,
+        null=True,
+    )
     # batchfile_id (dire pa sure kun nano gud ine)
 
     def __str__(self) -> str:
@@ -54,9 +59,13 @@ class News(models.Model):
     name = models.TextField()
     details = models.TextField()
     category = models.CharField(max_length=1, choices=CATEGORY_CHOICES)
-    date_posted = models.DateTimeField(auto_now_add=True)
     date_expired = models.DateTimeField()
     status = models.CharField(max_length=1, choices=STAUS_CHOICES)
+    is_posted = models.BooleanField(default=False)
+    date_posted = models.DateField(
+        blank=True,
+        null=True,
+    )
     # batchfile_id (dire pa sure kun nano gud ine)
 
     def __str__(self) -> str:

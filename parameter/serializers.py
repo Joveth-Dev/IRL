@@ -20,7 +20,8 @@ class ProgramSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Program
-        fields = ['id', 'title', 'executive_summary', 'coordinator']
+        fields = ['id', 'title', 'executive_summary',
+                  'coordinator', 'date_posted']
 
 
 class CustomPersonSerializer(serializers.ModelSerializer):
@@ -45,7 +46,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Project
         fields = ['id', 'title', 'project_description', 'status',
-                  'date_started', 'date_ended', 'duration', 'SALOG_employees']
+                  'date_started', 'date_ended', 'duration', 'SALOG_employees', 'date_posted']
 
 
 class LinkagePartnerSerializer(serializers.ModelSerializer):
@@ -78,4 +79,4 @@ class ResearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Research
         fields = ['id', 'project', 'title', 'description', 'status', 'date_started',
-                  'date_ended', 'duration', 'researchers', 'equipments', 'linkage_partners']
+                  'date_ended', 'duration', 'researchers', 'equipments', 'linkage_partners', 'date_posted']

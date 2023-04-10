@@ -47,6 +47,11 @@ class Program(models.Model):
         Coordinator, on_delete=models.CASCADE, related_name='programs')
     title = models.CharField(max_length=255)
     executive_summary = models.TextField()
+    is_posted = models.BooleanField(default=False)
+    date_posted = models.DateField(
+        blank=True,
+        null=True,
+    )
 
     def __str__(self) -> str:
         return self.title
@@ -103,6 +108,11 @@ class Project(models.Model):
     date_started = models.DateField()
     date_ended = models.DateField(blank=True, null=True)
     duration = models.SmallIntegerField()
+    is_posted = models.BooleanField(default=False)
+    date_posted = models.DateField(
+        blank=True,
+        null=True,
+    )
 
     def __str__(self) -> str:
         return self.title
@@ -183,6 +193,11 @@ class Research(models.Model):
     date_started = models.DateField()
     date_ended = models.DateField(blank=True, null=True)
     duration = models.SmallIntegerField()
+    is_posted = models.BooleanField(default=False)
+    date_posted = models.DateField(
+        blank=True,
+        null=True,
+    )
 
     def __str__(self) -> str:
         return self.title

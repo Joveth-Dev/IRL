@@ -8,8 +8,8 @@ class ActivitySerializers(serializers.ModelSerializer):
 
     class Meta:
         model = models.Activity
-        fields = ['id', 'project', 'research', 'name', 'description',
-                  'activity_type', 'date_started', 'date_ended', 'duration_in_hours']
+        fields = ['id', 'project', 'research', 'name', 'description', 'activity_type',
+                  'date_started', 'date_ended', 'duration_in_hours', 'date_posted']
 
 
 class NewsSerializers(serializers.ModelSerializer):

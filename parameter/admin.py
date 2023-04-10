@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.contrib import admin
 from django.db.models import OuterRef, Subquery
 from django.db.models.functions import Concat
@@ -14,6 +15,9 @@ class PersonAdmin(admin.ModelAdmin):
     search_fields = ['first_name__icontains', 'middle_name__icontains',
                      'last_name__icontains', 'extension_name__icontains']
 
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 
 @admin.register(models.Coordinator)
 class CoordinatorAdmin(admin.ModelAdmin):
@@ -23,15 +27,38 @@ class CoordinatorAdmin(admin.ModelAdmin):
     ordering = ['name']
     search_fields = ['name__icontains', 'agency_or_address']
 
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 
 @admin.register(models.Program)
 class ProgramAdmin(admin.ModelAdmin):
-    list_display = ['title', 'coordinator', 'program_executive_summary']
+    actions = ['post', 'remove_post']
+    fields = ['title', 'coordinator', 'executive_summary', 'is_posted']
+    list_display = ['title', 'coordinator',
+                    'program_executive_summary', 'date_posted', 'is_posted']
+    list_filter = ['date_posted', 'is_posted']
     list_per_page = 10
     list_select_related = ['coordinator']
     ordering = ['coordinator']
     search_fields = ['title__icontains',
                      'coordinator__name__icontains', 'executive_summary__icontains']
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def save_model(self, request, obj: models.Program, form, change):
+        if obj.is_posted:
+            obj.date_posted = datetime.now().date()
+        if not obj.is_posted:
+            obj.date_posted = None
+        return super().save_model(request, obj, form, change)
+
+    def get_fields(self, request, obj=None):
+        fields = list(self.fields)
+        if obj and obj.is_posted:
+            fields.append('date_posted')
+        return fields
 
     @admin.display(ordering='executive_summary', description='executive summary')
     def program_executive_summary(self, program: models.Program):
@@ -40,6 +67,30 @@ class ProgramAdmin(admin.ModelAdmin):
             executive_summary = executive_summary[:100]
             return executive_summary.rstrip() + '...'
         return executive_summary
+
+    @admin.action(description='Post selected program/s')
+    def post(self, request, queryset):
+        updated_count = queryset.update(
+            is_posted=True,
+            date_posted=datetime.now().date(),
+        )
+        self.message_user(
+            request,
+            f'{updated_count} programs were successfully posted!',
+            "success"
+        )
+
+    @admin.action(description='Remove selected program/s from posts')
+    def remove_post(self, request, queryset):
+        updated_count = queryset.update(
+            is_posted=False,
+            date_posted=None,
+        )
+        self.message_user(
+            request,
+            f'{updated_count} programs were removed from posts!',
+            "error"
+        )
 
 
 @admin.register(models.SALOG_Employee)
@@ -52,6 +103,9 @@ class SALOG_EmployeeAdmin(admin.ModelAdmin):
     search_fields = ['person__first_name__icontains',
                      'person__middle_name__icontains', 'person__last_name__icontains', 'designation__icontains']
 
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 
 class SALOGEmployeeInline(admin.TabularInline):
     extra = 0
@@ -63,17 +117,34 @@ class SALOGEmployeeInline(admin.TabularInline):
 
 @admin.register(models.Project)
 class ProjectAdmin(admin.ModelAdmin):
+    actions = ['post', 'remove_post']
     autocomplete_fields = ['program']
     fields = ['program', 'title', 'project_description', 'status',
-              'date_started', 'date_ended', 'duration']
+              'date_started', 'date_ended', 'duration', 'is_posted']
     inlines = [SALOGEmployeeInline]
-    list_display = ['title', 'project_program', 'SALOG_Employees', 'description',
-                    'status', 'date_started', 'date_ended', 'duration_in_months']
+    list_display = ['title', 'project_program', 'SALOG_Employees', 'description', 'status',
+                    'date_started', 'date_ended', 'duration_in_months', 'date_posted', 'is_posted']
     list_filter = ['status', 'date_started', 'date_ended']
     list_per_page = 10
     ordering = ['-date_started']
     search_fields = ['title__icontains', 'program__title__icontains',
                      'project_description__icontains']
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def save_model(self, request, obj, form, change):
+        if obj.is_posted:
+            obj.date_posted = datetime.now().date()
+        if not obj.is_posted:
+            obj.date_posted = None
+        return super().save_model(request, obj, form, change)
+
+    def get_fields(self, request, obj=None):
+        fields = list(self.fields)
+        if obj and obj.is_posted:
+            fields.append('date_posted')
+        return fields
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request). \
@@ -111,6 +182,30 @@ class ProjectAdmin(admin.ModelAdmin):
     def duration_in_months(self, project):
         return project.duration
 
+    @admin.action(description='Post selected project/s')
+    def post(self, request, queryset):
+        updated_count = queryset.update(
+            is_posted=True,
+            date_posted=datetime.now().date(),
+        )
+        self.message_user(
+            request,
+            f'{updated_count} projects were successfully posted!',
+            "success"
+        )
+
+    @admin.action(description='Remove selected project/s from posts')
+    def remove_post(self, request, queryset):
+        updated_count = queryset.update(
+            is_posted=False,
+            date_posted=None,
+        )
+        self.message_user(
+            request,
+            f'{updated_count} projects were removed from posts!',
+            "error"
+        )
+
 # SUBMITTED FILES TABLE
 # *Setup Submitted Files and View User Interphase is still under construction
 
@@ -123,6 +218,9 @@ class ResearcherAdmin(admin.ModelAdmin):
     ordering = ['SALOG_employee']
     search_fields = ['SALOG_employee__person__first_name__icontains',
                      'SALOG_employee__person__middle_name__icontains', 'SALOG_employee__person__last_name__icontains']
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 class LinkagePartnerInline(admin.TabularInline):
@@ -150,12 +248,13 @@ class ResearcherInline(admin.TabularInline):
 
 @admin.register(models.Research)
 class ResearchAdmin(admin.ModelAdmin):
+    actions = ['post', 'remove_post']
     autocomplete_fields = ['project', 'equipments']
     fields = ['project', 'title', 'description', 'status',
-              'date_started', 'date_ended', 'duration']
+              'date_started', 'date_ended', 'duration', 'is_posted']
     inlines = [ResearcherInline, EquipmentInline, LinkagePartnerInline]
-    list_display = ('title', 'research_project', 'research_researchers', 'abstract', 'status',
-                    'date_started', 'date_ended', 'duration_in_months')
+    list_display = ['title', 'research_project', 'research_researchers', 'abstract', 'status',
+                    'date_started', 'date_ended', 'duration_in_months', 'date_posted', 'is_posted']
     list_filter = ['project', 'status', 'date_started', 'date_ended']
     list_per_page = 10
     ordering = ['-date_started']
@@ -163,6 +262,22 @@ class ResearchAdmin(admin.ModelAdmin):
                      'researchers__SALOG_employee__person__first_name__icontains',
                      'researchers__SALOG_employee__person__middle_name__icontains',
                      'researchers__SALOG_employee__person__last_name__icontains']
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def save_model(self, request, obj, form, change):
+        if obj.is_posted:
+            obj.date_posted = datetime.now().date()
+        if not obj.is_posted:
+            obj.date_posted = None
+        return super().save_model(request, obj, form, change)
+
+    def get_fields(self, request, obj=None):
+        fields = list(self.fields)
+        if obj and obj.is_posted:
+            fields.append('date_posted')
+        return fields
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request). \
@@ -200,6 +315,30 @@ class ResearchAdmin(admin.ModelAdmin):
     def duration_in_months(self, research):
         return research.duration
 
+    @admin.action(description='Post selected research/es')
+    def post(self, request, queryset):
+        updated_count = queryset.update(
+            is_posted=True,
+            date_posted=datetime.now().date(),
+        )
+        self.message_user(
+            request,
+            f'{updated_count} researches were successfully posted!',
+            "success"
+        )
+
+    @admin.action(description='Remove selected research/es from posts')
+    def remove_post(self, request, queryset):
+        updated_count = queryset.update(
+            is_posted=False,
+            date_posted=None,
+        )
+        self.message_user(
+            request,
+            f'{updated_count} researches were removed from posts!',
+            "error"
+        )
+
 # *Research Details Entry and View is still under contraction
 
     class Media:
@@ -217,6 +356,9 @@ class LinkagePartnerAdmin(admin.ModelAdmin):
     ordering = ['name']
     readonly_fields = ['linkage_partner_logo']
     search_fields = ['name__icontains', 'description__icontains']
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
     def get_fields(self, request, obj=None):
         fields = list(self.fields)
@@ -242,6 +384,9 @@ class EquipmentAdmin(admin.ModelAdmin):
     ordering = ['name']
     readonly_fields = ['thumbnail', 'image_thumbnail']
     search_fields = ['name__icontains', 'description__icontains']
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
     def get_fields(self, request, obj=None):
         fields = list(self.fields)

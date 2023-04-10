@@ -15,7 +15,7 @@ class CoordinatorViewSet(ReadOnlyModelViewSet):
 class ProgramViewSet(ReadOnlyModelViewSet):
     queryset = models.Program.objects. \
         select_related('coordinator'). \
-        all()
+        filter(is_posted=True)
     serializer_class = serializers.ProgramSerializer
 
 
@@ -29,7 +29,7 @@ class SALOG_EmployeeViewSet(ReadOnlyModelViewSet):
 class ProjectViewSet(ReadOnlyModelViewSet):
     queryset = models.Project.objects. \
         prefetch_related('SALOG_employees__person'). \
-        all()
+        filter(is_posted=True)
     serializer_class = serializers.ProjectSerializer
 
 
@@ -54,5 +54,5 @@ class ResearchViewSet(ReadOnlyModelViewSet):
     queryset = models.Research.objects. \
         select_related('project'). \
         prefetch_related('linkage_partners', 'researchers__SALOG_employee__person', 'equipments'). \
-        all()
+        filter(is_posted=True)
     serializer_class = serializers.ResearchSerializer

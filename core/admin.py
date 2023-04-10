@@ -68,5 +68,11 @@ class AccountAdmin(BaseUserAdmin):
 class GroupAdmin(BaseGroupAdmin):
     list_per_page = 10
 
-    def has_view_permission(self, request, obj=None):
+    def has_add_permission(self, request):
+        return request.user.is_superuser
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_delete_permission(self, request, obj=None):
         return request.user.is_superuser
