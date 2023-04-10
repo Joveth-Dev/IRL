@@ -203,4 +203,5 @@ class Research(models.Model):
         return self.title
 
     class Meta:
+        verbose_name = 'Research'
         verbose_name_plural = 'Researches'

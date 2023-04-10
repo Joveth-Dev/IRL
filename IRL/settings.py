@@ -167,7 +167,7 @@ JAZZMIN_SETTINGS = {
     "site_brand": "IRL",
     # "site_logo": "", # need pa naton IRL logo
     # "site_icon": "", # preferably 32x32px version san IRL logo
-    "search_model": ["parameter.Person", "parameter.Research"],
+    "search_model": ["parameter.Program", "parameter.Project", "parameter.Research"],
     # Links to put along the top menu
     "topmenu_links": [
         # Url that gets reversed (Permissions can be added)
