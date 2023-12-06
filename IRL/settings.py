@@ -89,7 +89,7 @@ DATABASES = {
         'NAME': 'irl',
         'HOST': 'localhost',
         'USER': 'root',
-        'PASSWORD': 'Sql09518342134',
+        'PASSWORD': 'ENTER DATABASE PASSWORD HERE...',
     }
 }
 
